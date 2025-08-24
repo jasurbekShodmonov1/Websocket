@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Chat</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .chat-container {
+            width: 420px; /* slightly bigger to fit buttons */
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background-color: #4a90e2;
+            color: #fff;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 12px;
+        }
+
+        #messages {
+            list-style: none;
+            padding: 12px;
+            flex: 1;
+            overflow-y: auto;
+            margin: 0;
+        }
+
+        #messages li {
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            border-radius: 8px;
+            max-width: 75%;
+            word-wrap: break-word;
+        }
+
+        .message-self {
+            background-color: #4a90e2;
+            color: #fff;
+            margin-left: auto;
+        }
+
+        .message-other {
+            background-color: #eaeaea;
+            color: #333;
+            margin-right: auto;
+        }
+
+        .chat-input {
+            display: flex;
+            flex-wrap: wrap; /* allow buttons to wrap if needed */
+            border-top: 1px solid #ddd;
+            padding: 5px;
+            gap: 5px;
+        }
+
+        .chat-input input {
+            flex: 1 1 auto; /* shrink/grow */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .chat-input button {
+            flex: 0 0 auto; /* fixed size */
+            background-color: #4a90e2;
+            border: none;
+            color: #fff;
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+
+        .chat-input button:hover {
+            background-color: #357ab8;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">WebSocket Chat</div>
+
+    <ul id="messages"></ul>
+
+    <div class="chat-input">
+        <input id="sender" placeholder="Your name" style="max-width: 100px;">
+        <input id="content" placeholder="Type a message...">
+        <button onclick="sendWebSocketMessage()">Send WS</button>
+        <button onclick="sendRestMessage()">Send REST</button>
+    </div>
+</div>
+
+<script>
+    let stompClient = null;
+
+    const socket = new SockJS('/ws');
+    stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, function(frame) {
+        console.log("✅ Connected: " + frame);
+
+        stompClient.subscribe('/topic/public', function(response) {
+            const message = JSON.parse(response.body);
+            showMessage(message.sender, message.content);
+        });
+    });
+
+    function showMessage(sender, content) {
+        const li = document.createElement('li');
+        const self = sender === document.getElementById('sender').value.trim();
+        li.classList.add(self ? 'message-self' : 'message-other');
+        li.textContent = sender + ": " + content;
+        document.getElementById('messages').appendChild(li);
+
+        const messagesDiv = document.getElementById('messages');
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function sendWebSocketMessage() {
+        const sender = document.getElementById('sender').value.trim();
+        const content = document.getElementById('content').value.trim();
+        if (stompClient && stompClient.connected && sender && content) {
+            stompClient.send("/app/chat.sendMessage", {}, JSON.stringify({ sender, content }));
+            document.getElementById('content').value = '';
+        } else {
+            alert("WebSocket not connected or empty message!");
+        }
+    }
+
+    function sendRestMessage() {
+        const sender = document.getElementById('sender').value.trim();
+        const content = document.getElementById('content').value.trim();
+        if (sender && content) {
+            fetch('/api/messages/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sender, content })
+            });
+            document.getElementById('content').value = '';
+        }
+    }
+</script>
+
+</body>
+</html>
