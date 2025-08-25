@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Device Details</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          background: #f4f6f9;
+          margin: 0;
+          padding: 40px;
+        }
+        .card {
+          background: white;
+          max-width: 400px;
+          margin: auto;
+          padding: 20px 30px;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h2 {
+          text-align: center;
+          color: #333;
+          margin-bottom: 20px;
+        }
+        .info {
+          margin: 10px 0;
+          font-size: 16px;
+        }
+        .label {
+          font-weight: bold;
+          color: #555;
+        }
+        .value {
+          color: #111;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>Your Device Info</h2>
+    <div class="info"><span class="label">Browser:</span> <span id="browser" class="value"></span></div>
+    <div class="info"><span class="label">OS:</span> <span id="os" class="value"></span></div>
+    <div class="info"><span class="label">Device:</span> <span id="device" class="value"></span></div>
+</div>
+
+<script>
+
+    fetch('/api/device-details')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('browser').innerText = data.browser;
+        document.getElementById('os').innerText = data.os;
+        document.getElementById('device').innerText = data.device;
+      })
+      .catch(err => console.error("Error fetching device details:", err));
+</script>
+</body>
+</html>

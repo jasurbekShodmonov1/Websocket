@@ -27,8 +27,12 @@ repositories {
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("org.springframework.boot:spring-boot-starter-websocket")
+
+    implementation("com.github.ua-parser:uap-java:1.6.1")
+
+    implementation("org.springframework.boot:spring-boot-starter-websocket")
 	implementation ("com.fasterxml.jackson.core:jackson-databind")
+
 	compileOnly("org.projectlombok:lombok")
 	runtimeOnly("org.postgresql:postgresql")
 	annotationProcessor("org.projectlombok:lombok")
