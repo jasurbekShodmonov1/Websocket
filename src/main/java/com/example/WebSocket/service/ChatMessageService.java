@@ -5,6 +5,7 @@ import com.example.WebSocket.dto.request.MessageRequestDto;
 import com.example.WebSocket.dto.response.MessageResponseDto;
 import com.example.WebSocket.entity.ChatMessage;
 import com.example.WebSocket.repository.ChatMessageRepository;
+import com.example.WebSocket.security.HashUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +44,7 @@ public class ChatMessageService {
     public ChatMessage save(MessageRequestDto messageRequestDto){
         ChatMessage message = ChatMessage.builder()
                 .sender(messageRequestDto.sender())
-                .content(messageRequestDto.content())
+                .content(HashUtil.sha256(messageRequestDto.content()))
                 .timestamp(LocalDateTime.now())
                 .build();
 

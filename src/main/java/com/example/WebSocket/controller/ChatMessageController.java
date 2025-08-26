@@ -1,6 +1,7 @@
 package com.example.WebSocket.controller;
 
 
+import com.example.WebSocket.dto.request.MessageRequestDto;
 import com.example.WebSocket.entity.ChatMessage;
 import com.example.WebSocket.service.ChatMessageService;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +18,10 @@ public class ChatMessageController {
 
     @MessageMapping("/chat.sendMessage")
     @SendTo("/topic/public")
-    public ChatMessage sendMessage(ChatMessage message) {
-        System.out.println("Received  Websocket message:" + message.getContent());
-        return chatMessageService.saveMessage(message); // store in DB + broadcast
+    public MessageRequestDto sendMessage(MessageRequestDto messageRequestDto) {
+        System.out.println("Received  Websocket message:" + messageRequestDto.content());
+        chatMessageService.save(messageRequestDto);
+
+        return messageRequestDto;
     }
 }

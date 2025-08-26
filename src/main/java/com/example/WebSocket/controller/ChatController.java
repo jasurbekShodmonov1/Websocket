@@ -29,11 +29,11 @@ public class ChatController {
     }
 
     @PostMapping("/send")
-    public String sendTestMessage(@RequestBody MessageRequestDto message) {
-        // Save to DB
-        chatMessageService.save(message);
-        // Send to all WebSocket subscribers
-        messagingTemplate.convertAndSend("/topic/public", message);
+    public String sendTestMessage(@RequestBody MessageRequestDto messageRequestDto) {
+
+        chatMessageService.save(messageRequestDto);
+
+        messagingTemplate.convertAndSend("/topic/public", messageRequestDto);
         return "Message sent!";
     }
 }
